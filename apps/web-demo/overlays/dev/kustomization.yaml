@@ -17,3 +17,10 @@ patches:
     - op: replace
       path: /spec/replicas
       value: 1
+- target:
+    kind: Ingress
+    name: web-demo-ingress
+  patch: |-
+    - op: replace
+      path: /spec/rules/0/host
+      value: dev.web.192.168.1.68.nip.io
