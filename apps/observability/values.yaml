@@ -1,0 +1,51 @@
+# Default values for observability stack
+kube-prometheus-stack:
+  grafana:
+    enabled: true
+    adminPassword: "admin" # Change this in production!
+    additionalDataSources:
+      - name: Loki
+        type: loki
+        url: http://observability-loki:3100
+        access: proxy
+      - name: Tempo
+        type: tempo
+        url: http://observability-tempo:3100
+        access: proxy
+  prometheus:
+    prometheusSpec:
+      serviceMonitorSelectorNilUsesHelmValues: false
+      podMonitorSelectorNilUsesHelmValues: false
+
+loki-stack:
+  loki:
+    commonConfig:
+      replication_factor: 1
+  promtail:
+    enabled: true
+    config:
+      clients:
+        - url: http://observability-loki:3100/loki/api/v1/push
+
+tempo:
+  tempo:
+    repository: grafana/tempo
+    tag: latest
+    receivers:
+      jaeger:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:14250
+          thrift_http:
+            endpoint: 0.0.0.0:14268
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
+
+opentelemetry-operator:
+  manager:
+    collectorImage:
+      repository: otel/opentelemetry-collector-contrib
