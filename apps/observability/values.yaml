@@ -50,6 +50,10 @@ loki-stack:
         - url: http://observability-loki:3100/loki/api/v1/push
     extraArgs:
       - "-config.expand-env=true"
+      - "-config.file=/etc/promtail/promtail.yaml"
+      # Explicitly turn off fsnotify in args in addition to config
+      # This is the nuclear option for "too many open files"
+      - "-target.sync-period=10s"
 
 tempo:
   persistence:
