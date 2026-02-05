@@ -113,3 +113,9 @@ opentelemetry-operator:
   manager:
     collectorImage:
       repository: otel/opentelemetry-collector-contrib
+
+# Custom configuration for the Umbrella Chart
+ingress:
+  enabled: true
+  domain: grafana.192.168.1.68.nip.io
+  className: nginx
