@@ -25,12 +25,25 @@ loki-stack:
       enabled: false
   promtail:
     enabled: true
-    # Removed manual client config to let helm chart auto-configure connection to Loki
+    config:
+      target_config:
+        sync_period: 10s
+        # Disable fsnotify to avoid "too many open files" on large nodes/clusters
+        # and fallback to polling which is safer for labs
+      clients:
+        - url: http://observability-loki:3100/loki/api/v1/push
+    extraArgs:
+      - "-config.expand-env=true"
 
 tempo:
   tempo:
     repository: grafana/tempo
-    tag: 2.4.0 # Using a specific stable version
+    tag: 2.4.0
+    # Run as root to avoid "permission denied" on /var/tempo
+    # In production, use persistent volumes with correct ownership
+    securityContext:
+      runAsUser: 0
+      runAsGroup: 0
     receivers:
       jaeger:
         protocols:
