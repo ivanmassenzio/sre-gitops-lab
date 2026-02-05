@@ -6,15 +6,23 @@ spec:
   replicas: 1
   strategy:
     canary:
+      # Run analysis in background while rollout progresses
+      analysis:
+        templates:
+          - templateName: success-rate
+        args:
+          - name: service-name
+            value: web-demo
+          - name: namespace
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
       steps:
         - setWeight: 20
-        - pause: {} # Pause indefinitely until manual promotion
-        - setWeight: 40
-        - pause: { duration: 40s }
-        - setWeight: 60
-        - pause: { duration: 20s }
-        - setWeight: 80
-        - pause: { duration: 20s }
+        - pause: { duration: 60s } # Wait 1m for metrics/chaos
+        - setWeight: 50
+        - pause: { duration: 30s }
+        - setWeight: 100
   revisionHistoryLimit: 2
   selector:
     matchLabels:
