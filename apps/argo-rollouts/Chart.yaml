@@ -1,0 +1,10 @@
+apiVersion: v2
+name: argo-rollouts
+description: Argo Rollouts controller and dashboard
+type: application
+version: 1.0.0
+appVersion: "1.6.4"
+dependencies:
+  - name: argo-rollouts
+    version: 2.34.1
+    repository: https://argoproj.github.io/argo-helm
