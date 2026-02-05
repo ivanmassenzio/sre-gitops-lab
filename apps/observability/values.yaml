@@ -3,6 +3,12 @@ kube-prometheus-stack:
   grafana:
     enabled: true
     adminPassword: "admin"
+    persistence:
+      enabled: true
+      type: pvc
+      accessModes:
+        - ReadWriteOnce
+      size: 5Gi
     additionalDataSources:
       - name: Loki
         type: loki
@@ -16,13 +22,23 @@ kube-prometheus-stack:
     prometheusSpec:
       serviceMonitorSelectorNilUsesHelmValues: false
       podMonitorSelectorNilUsesHelmValues: false
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: 10Gi
 
 loki-stack:
   loki:
     commonConfig:
       replication_factor: 1
     persistence:
-      enabled: false
+      enabled: true
+      size: 10Gi
+      accessModes:
+        - ReadWriteOnce
   promtail:
     enabled: true
     config:
