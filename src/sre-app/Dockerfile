@@ -1,11 +1,12 @@
 FROM golang:1.21-alpine AS builder
 
 WORKDIR /app
-COPY go.mod ./
-# COPY go.sum ./ # Ignore go.sum for simplicity in lab
-RUN go mod download
+# Copy source code immediately so go mod tidy can see imports
+COPY go.mod *.go ./
 
-COPY *.go ./
+# Generate go.sum and download modules inside the container
+RUN go mod tidy
+
 RUN CGO_ENABLED=0 GOOS=linux go build -o sre-app
 
 FROM alpine:latest
