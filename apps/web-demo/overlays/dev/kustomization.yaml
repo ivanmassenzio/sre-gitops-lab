@@ -9,6 +9,10 @@ namePrefix: dev-
 commonLabels:
   environment: development
 
+images:
+  - name: nginx
+    newTag: 1.25-alpine
+
 patches:
   - target:
       kind: Rollout
@@ -16,7 +20,7 @@ patches:
     patch: |-
       - op: replace
         path: /spec/replicas
-        value: 1
+        value: 5
   - target:
       kind: Ingress
       name: web-demo-ingress
