@@ -2,13 +2,19 @@
 kube-prometheus-stack:
   grafana:
     enabled: true
-    adminPassword: "admin"
     persistence:
       enabled: true
       type: pvc
       accessModes:
         - ReadWriteOnce
       size: 5Gi
+    # Low resource mode for homelab
+    resources:
+      requests:
+        cpu: 10m
+        memory: 128Mi
+      limits:
+        memory: 256Mi
     additionalDataSources:
       - name: Loki
         type: loki
@@ -22,6 +28,12 @@ kube-prometheus-stack:
     prometheusSpec:
       serviceMonitorSelectorNilUsesHelmValues: false
       podMonitorSelectorNilUsesHelmValues: false
+      resources:
+        requests:
+          cpu: 50m
+          memory: 256Mi
+        limits:
+          memory: 512Mi
       storageSpec:
         volumeClaimTemplate:
           spec:
@@ -39,6 +51,12 @@ loki-stack:
       size: 10Gi
       accessModes:
         - ReadWriteOnce
+    resources:
+      requests:
+        cpu: 20m
+        memory: 128Mi
+      limits:
+        memory: 256Mi
   promtail:
     enabled: false
     config:
@@ -61,6 +79,13 @@ tempo:
     accessModes:
       - ReadWriteOnce
     size: 5Gi
+  tempo:
+    resources:
+      requests:
+        cpu: 20m
+        memory: 128Mi
+      limits:
+        memory: 256Mi
   tempo:
     repository: grafana/tempo
     tag: 2.4.0
