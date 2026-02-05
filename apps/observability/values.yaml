@@ -40,7 +40,7 @@ loki-stack:
       accessModes:
         - ReadWriteOnce
   promtail:
-    enabled: true
+    enabled: false
     config:
       target_config:
         sync_period: 10s
