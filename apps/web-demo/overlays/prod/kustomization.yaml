@@ -1,7 +1,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-- ../../base
+  - ../../base
 
 namespace: prod
 namePrefix: prod-
@@ -10,17 +10,17 @@ commonLabels:
   environment: production
 
 patches:
-- target:
-    kind: Deployment
-    name: web-demo
-  patch: |-
-    - op: replace
-      path: /spec/replicas
-      value: 3
-- target:
-    kind: Ingress
-    name: web-demo-ingress
-  patch: |-
-    - op: replace
-      path: /spec/rules/0/host
-      value: prod.web.192.168.1.68.nip.io
+  - target:
+      kind: Rollout
+      name: web-demo
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 3
+  - target:
+      kind: Ingress
+      name: web-demo-ingress
+    patch: |-
+      - op: replace
+        path: /spec/rules/0/host
+        value: prod.web.192.168.1.68.nip.io

@@ -1,9 +1,21 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
 metadata:
   name: web-demo
 spec:
   replicas: 1
+  strategy:
+    canary:
+      steps:
+        - setWeight: 20
+        - pause: {} # Pause indefinitely until manual promotion
+        - setWeight: 40
+        - pause: { duration: 40s }
+        - setWeight: 60
+        - pause: { duration: 20s }
+        - setWeight: 80
+        - pause: { duration: 20s }
+  revisionHistoryLimit: 2
   selector:
     matchLabels:
       app: web-demo
@@ -13,11 +25,11 @@ spec:
         app: web-demo
     spec:
       containers:
-      - name: nginx
-        image: nginx:alpine
-        ports:
-        - containerPort: 80
-        resources:
-          requests:
-            cpu: 10m
-            memory: 64Mi
+        - name: nginx
+          image: nginx:alpine
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 10m
+              memory: 64Mi
