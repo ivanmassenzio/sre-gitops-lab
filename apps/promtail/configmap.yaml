@@ -16,33 +16,9 @@ data:
       - url: http://observability-loki:3100/loki/api/v1/push
 
     scrape_configs:
-    # 1. Intento con Metadata (El que estábamos probando, pero con la ruta explicita del ls)
-    # Ruta: Namespace_PodName_UID / Container / *.log
-    - job_name: kubernetes-pods
-      kubernetes_sd_configs:
-      - role: pod
-      relabel_configs:
-      - action: labelmap
-        regex: __meta_kubernetes_pod_label_(.+)
-      - action: replace
-        source_labels: [__meta_kubernetes_namespace]
-        target_label: namespace
-      - action: replace
-        source_labels: [__meta_kubernetes_pod_name]
-        target_label: pod
-      - action: replace
-        source_labels:
-          - __meta_kubernetes_namespace
-          - __meta_kubernetes_pod_name
-          - __meta_kubernetes_pod_uid
-          - __meta_kubernetes_pod_container_name
-        separator: /
-        # Usamos asteriscos en los separadores por si Kind usa guiones o barras bajas
-        replacement: /var/log/pods/*$1*$2*$3*/$4/*.log
-        target_label: __path__
-
-    # 2. LA NUCLEAR: Si lo de arriba falla, esto lee TODO a la fuerza.
-    # Aparecerán en Loki con label {job="varlogs"}
+    # MODO NUCLEAR MEJORADO
+    # 1. Busca todo lo que termine en .log dentro de pods
+    # 2. Usa Regex para extraer Namespace, Pod y Contenedor del nombre de la carpeta
     - job_name: system-logs
       static_configs:
       - targets:
@@ -50,3 +26,15 @@ data:
         labels:
           job: varlogs
           __path__: /var/log/pods/*/*/*.log
+      
+      pipeline_stages:
+      # Parseamos la ruta: /var/log/pods/NAMESPACE_POD_UID/CONTAINER/archivo.log
+      - regex:
+          source: filename
+          expression: "^/var/log/pods/(?P<namespace>[^_]+)_(?P<pod>.+)_(?P<uid>[a-f0-9\\-]+)/(?P<container>[^/]+)/.*$"
+      
+      # Convertimos lo extraído en etiquetas reales de Loki
+      - labels:
+          namespace:
+          pod:
+          container:
