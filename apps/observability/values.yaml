@@ -2,7 +2,7 @@
 kube-prometheus-stack:
   grafana:
     enabled: true
-    adminPassword: "admin" # Change this in production!
+    adminPassword: "admin"
     additionalDataSources:
       - name: Loki
         type: loki
@@ -21,16 +21,16 @@ loki-stack:
   loki:
     commonConfig:
       replication_factor: 1
+    persistence:
+      enabled: false
   promtail:
     enabled: true
-    config:
-      clients:
-        - url: http://observability-loki:3100/loki/api/v1/push
+    # Removed manual client config to let helm chart auto-configure connection to Loki
 
 tempo:
   tempo:
     repository: grafana/tempo
-    tag: latest
+    tag: 2.4.0 # Using a specific stable version
     receivers:
       jaeger:
         protocols:
@@ -44,6 +44,13 @@ tempo:
             endpoint: 0.0.0.0:4317
           http:
             endpoint: 0.0.0.0:4318
+    storage:
+      trace:
+        backend: local
+        local:
+          path: /var/tempo/traces
+        wal:
+          path: /var/tempo/wal
 
 opentelemetry-operator:
   manager:
