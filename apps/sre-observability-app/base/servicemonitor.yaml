@@ -1,0 +1,14 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: sre-app
+  labels:
+    release: observability # Must match Prometheus selector
+spec:
+  selector:
+    matchLabels:
+      app: sre-app
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
