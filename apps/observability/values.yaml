@@ -36,14 +36,14 @@ loki-stack:
       - "-config.expand-env=true"
 
 tempo:
+  persistence:
+    enabled: true
+    accessModes:
+      - ReadWriteOnce
+    size: 5Gi
   tempo:
     repository: grafana/tempo
     tag: 2.4.0
-    # Run as root to avoid "permission denied" on /var/tempo
-    # In production, use persistent volumes with correct ownership
-    securityContext:
-      runAsUser: 0
-      runAsGroup: 0
     receivers:
       jaeger:
         protocols:
