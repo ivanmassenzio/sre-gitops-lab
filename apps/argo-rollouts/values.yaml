@@ -1,0 +1,16 @@
+argo-rollouts:
+  dashboard:
+    enabled: true
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      hosts:
+        - argo-rollouts.192.168.1.68.nip.io
+      paths:
+        - /
+      pathType: Prefix
+  controller:
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true # Automatically register metrics in Prometheus
