@@ -79,7 +79,6 @@ tempo:
     accessModes:
       - ReadWriteOnce
     size: 5Gi
-  tempo:
     resources:
       requests:
         cpu: 20m
