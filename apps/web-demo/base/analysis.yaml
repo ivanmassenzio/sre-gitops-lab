@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
-kind: AnalysisTemplate
+kind: ClusterAnalysisTemplate
 metadata:
-  name: success-rate
+  name: success-rate-global
 spec:
   args:
     - name: service-name
@@ -14,12 +14,7 @@ spec:
       provider:
         prometheus:
           address: http://observability-kube-prometh-prometheus.monitoring:9090
-          # Use simple pod availability check first since we have no traffic generator yet.
-          # This checks: "Are there any pods for this app that are NOT ready?" -> If 0, success.
-          # Real query would need traffic. For lab, lets use 'up'.
-          # Wait, user wants failure injection. 'up' is hard to fail via HTTP chaos.
-          # Let's stick to the Ingress query but make it robust.
-          # If no traffic, valid result is NaN? We set default 1 (100%).
+          # Check HTTP success rate via Ingress metrics
           query: |
             (
               sum(rate(nginx_ingress_controller_requests{exported_service=~".*{{args.service-name}}", namespace="{{args.namespace}}", status!~"5.*"}[1m])) 
