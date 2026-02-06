@@ -9,7 +9,7 @@ spec:
       # Run analysis in background while rollout progresses
       analysis:
         templates:
-          - templateName: success-rate
+          - clusterTemplateName: success-rate-global
         args:
           - name: service-name
             value: web-demo
