@@ -1,11 +1,23 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
 metadata:
   name: sre-app
   labels:
     app: sre-app
 spec:
   replicas: 1
+  strategy:
+    canary:
+      analysis:
+        templates:
+          - templateName: sre-app-success-rate
+      steps:
+        - setWeight: 20
+        - pause: { duration: 60s }
+        - setWeight: 50
+        - pause: { duration: 30s }
+        - setWeight: 100
+  revisionHistoryLimit: 2
   selector:
     matchLabels:
       app: sre-app
@@ -14,15 +26,14 @@ spec:
       labels:
         app: sre-app
       annotations:
-        # Scrape metrics natively from the app
         prometheus.io/scrape: "true"
         prometheus.io/port: "8080"
         prometheus.io/path: "/metrics"
     spec:
       containers:
         - name: sre-app
-          image: sre-app:v1 # Local image loaded via 'kind load'
-          imagePullPolicy: IfNotPresent # Critical for Kind local images
+          image: sre-app:v1
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
               name: http
@@ -30,9 +41,9 @@ spec:
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
               value: "http://observability-tempo.monitoring.svc.cluster.local:4317"
             - name: ERROR_RATE
-              value: "0" # Start with 0 errors
+              value: "0"
             - name: LATENCY_MS
-              value: "50" # 50ms simulated latency
+              value: "50"
           resources:
             requests:
               cpu: 50m

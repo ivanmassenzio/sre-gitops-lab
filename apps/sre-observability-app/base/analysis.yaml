@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: sre-app-success-rate
+spec:
+  metrics:
+    - name: success-rate
+      interval: 10s
+      successCondition: result >= 0.90
+      failureLimit: 3
+      provider:
+        prometheus:
+          address: http://observability-kube-prometh-prometheus.monitoring:9090
+          # Query metrics directly from the SRE App (http_requests_total)
+          # Default to 1 (100%) if no traffic to avoid false failure on idle
+          query: |
+            (
+              sum(rate(http_requests_total{status!~"5.*", job="sre-app", namespace="dev"}[1m])) 
+              / 
+              sum(rate(http_requests_total{job="sre-app", namespace="dev"}[1m]))
+            ) or vector(1)
