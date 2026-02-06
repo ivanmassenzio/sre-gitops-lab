@@ -7,16 +7,16 @@ spec:
   strategy:
     canary:
       # Run analysis in background while rollout progresses
-      analysis:
-        templates:
-          - clusterTemplateName: success-rate-global
-        args:
-          - name: service-name
-            value: web-demo
-          - name: namespace
-            valueFrom:
-              fieldRef:
-                fieldPath: metadata.namespace
+      # analysis:
+      #   templates:
+      #     - clusterTemplateName: success-rate-global
+      #   args:
+      #     - name: service-name
+      #       value: web-demo
+      #     - name: namespace
+      #       valueFrom:
+      #         fieldRef:
+      #           fieldPath: metadata.namespace
       steps:
         - setWeight: 20
         - pause: { duration: 60s } # Wait 1m for metrics/chaos
